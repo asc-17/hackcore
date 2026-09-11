@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>Personnel Welfare & Stress Monitoring System</title>
+  
+  <!-- Typography & Icons from Design System -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS Engine -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "tier-elevated": "#EF7A34",
+            "tier-elevated-bg": "#FDEBDF",
+            "tier-moderate": "#E8A63D",
+            "tier-moderate-bg": "#FCF2DF",
+            "tier-stable": "#3FAE68",
+            "tier-stable-bg": "#E7F6ED",
+            "tier-priority": "#D64545",
+            "tier-priority-bg": "#FAE4E4",
+            "crisis-banner-bg": "#B83232",
+            "brand-primary": "#2E8B8B",
+            "brand-primary-dark": "#1F6666",
+            "brand-primary-light": "#E4F3F3",
+            "brand-accent": "#F2A6B4",
+            "brand-accent-light": "#FCE9EC",
+            "bg-cream": "#FBF3E9",
+            "bg-commander": "#F4F1EA",
+            "bg-sage": "#EEF3EC",
+            "bg-neutral-analytical": "#FAFBFB",
+            "surface-card": "#FFFFFF",
+            "border-subtle": "#E7EBEA",
+            "text-primary": "#1C2321",
+            "text-secondary": "#6B7573",
+            "text-disabled": "#A8B0AE",
+            "primary": "#006767",
+            "on-primary": "#ffffff",
+            "surface-container-low": "#ecf6f3",
+            "surface-container-lowest": "#ffffff",
+            "surface-container": "#e6f0ed"
+          },
+          fontFamily: {
+            body: ["Manrope", "sans-serif"],
+            display: ["Manrope", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="app.css"/>
+</head>
+<body class="bg-slate-200 flex flex-col items-center justify-start min-h-screen">
+
+  <!-- Mobile/Tablet Frame Viewport -->
+  <div id="app-viewport" class="app-viewport flex flex-col relative">
+    
+    <!-- Pinned Top Shell Header -->
+    <header id="app-header" class="fixed top-0 w-full z-50 bg-[#FBF3E9]/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(28,35,33,0.04)]"></header>
+
+    <!-- Main Dynamic Screen Content Area -->
+    <main class="flex flex-col relative w-full px-4 pt-24 pb-28 flex-1">
+      <div id="screen-content" class="w-full">
+        <!-- Rendered by app.js -->
+      </div>
+    </main>
+
+    <!-- Pinned Bottom Role-Based Shell Navigation -->
+    <nav id="app-bottom-nav" class="fixed bottom-0 w-full z-50 pb-safe px-4 pointer-events-none"></nav>
+
+  </div>
+
+  <!-- Boot Application -->
+  <script type="module">
+    import { render } from './app.js';
+    window.addEventListener('DOMContentLoaded', () => {
+      render();
+    });
+  </script>
+
+</body>
+</html>

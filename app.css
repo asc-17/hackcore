@@ -1,0 +1,211 @@
+/* Custom Application Styles & Micro-Interactions */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --brand-primary: #2E8B8B;
+  --brand-primary-dark: #1F6666;
+  --brand-primary-light: #E4F3F3;
+  --brand-accent: #F2A6B4;
+  --brand-accent-light: #FCE9EC;
+  --tier-stable: #3FAE68;
+  --tier-stable-bg: #E7F6ED;
+  --tier-moderate: #E8A63D;
+  --tier-moderate-bg: #FCF2DF;
+  --tier-elevated: #EF7A34;
+  --tier-elevated-bg: #FDEBDF;
+  --tier-priority: #D64545;
+  --tier-priority-bg: #FAE4E4;
+  --crisis-banner: #B83232;
+  --bg-cream: #FBF3E9;
+  --bg-commander: #F4F1EA;
+  --bg-sage: #EEF3EC;
+  --bg-analytical: #FAFBFB;
+  --surface-card: #FFFFFF;
+  --border-subtle: #E7EBEA;
+  --text-primary: #1C2321;
+  --text-secondary: #6B7573;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: #e5edea;
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #bdc9c8;
+  border-radius: 9999px;
+}
+
+/* Top Floating Simulator & Role Banner */
+.dev-toolbar {
+  position: fixed;
+  top: 10px;
+  z-index: 1000;
+  background: rgba(28, 35, 33, 0.92);
+  backdrop-filter: blur(16px);
+  color: #f1fcf9;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.dev-toolbar:hover {
+  background: rgba(20, 25, 24, 0.98);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+}
+
+.role-badge-btn {
+  padding: 5px 12px;
+  border-radius: 9999px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.role-badge-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.role-badge-btn.active {
+  background: var(--brand-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(46, 139, 139, 0.5);
+}
+
+/* Device View Container */
+.app-viewport {
+  width: 100%;
+  max-width: 412px;
+  min-height: 100vh;
+  position: relative;
+  background-color: var(--bg-cream);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 60px;
+  margin-bottom: 30px;
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+.app-viewport.fullscreen-mode {
+  max-width: 960px;
+  border-radius: 20px;
+  margin-top: 64px;
+}
+
+/* Smooth fade animations */
+.fade-in {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Arc Gauge Animations */
+#wellness-gauge-arc {
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.6s ease;
+}
+
+/* Breathing Orb animation */
+.breathing-pulse-inhale {
+  transform: scale(1.55);
+  background-color: rgba(46, 139, 139, 0.4) !important;
+  transition: transform 4000ms ease-in-out, background-color 4000ms ease-in-out;
+}
+
+.breathing-pulse-hold {
+  transform: scale(1.55);
+  background-color: rgba(46, 139, 139, 0.5) !important;
+  transition: transform 4000ms ease-in-out, background-color 4000ms ease-in-out;
+}
+
+.breathing-pulse-exhale {
+  transform: scale(1.0);
+  background-color: rgba(46, 139, 139, 0.2) !important;
+  transition: transform 4000ms ease-in-out, background-color 4000ms ease-in-out;
+}
+
+.breathing-pulse-rest {
+  transform: scale(1.0);
+  background-color: rgba(46, 139, 139, 0.1) !important;
+  transition: transform 4000ms ease-in-out, background-color 4000ms ease-in-out;
+}
+
+/* Modal overlays */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 29, 28, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-sheet {
+  background: #ffffff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Crisis Banner Pulse */
+.crisis-top-banner {
+  background: var(--crisis-banner);
+  color: #ffffff;
+  animation: subtlePulse 2.5s infinite;
+}
+
+@keyframes subtlePulse {
+  0% { box-shadow: 0 0 0 0 rgba(184, 50, 50, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(184, 50, 50, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(184, 50, 50, 0); }
+}
