@@ -7,7 +7,7 @@ import { explanationService } from './explanation_engine.js';
 export const store = {
   activeRole: 'personnel', // 'personnel' | 'commander' | 'officer'
   activeScreen: 'today',    // Screen key
-  viewportMode: 'mobile',   // 'mobile' | 'fullscreen'
+  viewportMode: 'desktop',  // 'mobile' | 'desktop'
   selectedPersonnelId: 'RA-849201', // Currently viewed personnel (Sarah Jenkins)
   
   // Roster of simulated personnel
@@ -237,17 +237,14 @@ export function setScreen(screenName) {
 /**
  * Toggle Viewport Mode
  */
-export function toggleViewportMode() {
-  store.viewportMode = store.viewportMode === 'mobile' ? 'fullscreen' : 'mobile';
+export function toggleViewportMode(mode) {
+  store.viewportMode = mode || (store.viewportMode === 'mobile' ? 'desktop' : 'mobile');
   const vp = document.getElementById('app-viewport');
   if (vp) {
-    if (store.viewportMode === 'fullscreen') {
-      vp.classList.add('fullscreen-mode');
-    } else {
-      vp.classList.remove('fullscreen-mode');
-    }
+    vp.classList.toggle('mobile-preview', store.viewportMode === 'mobile');
+    vp.classList.toggle('desktop-preview', store.viewportMode === 'desktop');
   }
-  renderDevToolbar();
+  render();
 }
 
 /**
@@ -355,42 +352,25 @@ export function renderDevToolbar() {
     tb = document.createElement('div');
     tb.id = 'dev-toolbar';
     tb.className = 'dev-toolbar';
-    document.body.prepend(tb);
   }
 
+  const viewport = document.getElementById('app-viewport');
+  const parent = viewport?.classList.contains('mobile-preview') ? viewport : document.body;
+  if (tb.parentElement !== parent) parent.prepend(tb);
+
   tb.innerHTML = `
-    <div class="flex items-center gap-2">
-      <span class="text-[11px] font-bold tracking-wider text-teal-300 uppercase">Role:</span>
-      <button class="role-badge-btn ${store.activeRole === 'personnel' ? 'active' : ''}" onclick="window.app.setRole('personnel')">
-        <span class="material-symbols-outlined text-[15px]">person</span> Personnel
-      </button>
-      <button class="role-badge-btn ${store.activeRole === 'commander' ? 'active' : ''}" onclick="window.app.setRole('commander')">
-        <span class="material-symbols-outlined text-[15px]">shield</span> Commander
-      </button>
-      <button class="role-badge-btn ${store.activeRole === 'officer' ? 'active' : ''}" onclick="window.app.setRole('officer')">
-        <span class="material-symbols-outlined text-[15px]">stethoscope</span> Wellness Officer
-      </button>
-    </div>
-
-    <div class="w-[1px] h-4 bg-white/20"></div>
-
-    <div class="flex items-center gap-2">
-      <select onchange="window.app.loadScenario(this.value)" class="bg-black/40 text-xs text-white border border-white/20 rounded-full px-2.5 py-1 focus:outline-none cursor-pointer">
-        <option value="">⚡ Test Scenarios (Tasks.md)</option>
-        <option value="stable">Scenario A: Stable Baseline</option>
-        <option value="burnout">Scenario B: Gradual Burnout (Elevated)</option>
-        <option value="acute">Scenario C: Acute High Risk (Priority)</option>
-        <option value="coldstart">Scenario D: Cold Start (Low Data)</option>
-        <option value="conflicting">Scenario E: Masked Distress (Conflicting)</option>
+    <details>
+      <summary>Risk scenarios</summary>
+      <label for="scenario-select">Risk scenario</label>
+      <select id="scenario-select" onchange="window.app.loadScenario(this.value)">
+        <option value="">Choose scenario</option>
+        <option value="stable">Stable baseline</option>
+        <option value="burnout">Gradual burnout</option>
+        <option value="acute">Acute high risk</option>
+        <option value="coldstart">Low data</option>
+        <option value="conflicting">Conflicting signals</option>
       </select>
-    </div>
-
-    <div class="w-[1px] h-4 bg-white/20"></div>
-
-    <button onclick="window.app.toggleViewportMode()" class="text-white/80 hover:text-white flex items-center gap-1 text-xs" title="Toggle Frame Width">
-      <span class="material-symbols-outlined text-[16px]">${store.viewportMode === 'mobile' ? 'desktop_windows' : 'smartphone'}</span>
-      <span>${store.viewportMode === 'mobile' ? 'Full View' : 'Mobile View'}</span>
-    </button>
+    </details>
   `;
 }
 
@@ -502,31 +482,37 @@ function renderHeader() {
   }
 
   header.innerHTML = `
-    <div class="h-6 px-4 flex items-center justify-between text-stone-500 select-none text-[12px] font-semibold">
-      <span>09:41</span>
-      <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-[15px]">signal_cellular_alt</span>
-        <span class="material-symbols-outlined text-[15px]">wifi</span>
-        <span class="material-symbols-outlined text-[16px]">battery_full</span>
-      </div>
+    <div class="header-brand">
+      <span class="material-symbols-outlined" aria-hidden="true">health_and_safety</span>
+      <span class="brand-copy">
+        <strong>Welfare Monitor</strong>
+        <small>Wellbeing check-ins &amp; early support</small>
+      </span>
     </div>
-    <div class="h-16 px-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img alt="Welfare Monitor App Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VtAWH3Vz13w6SwXRAo-Z8KUho7xmpMkOdINTH1Nyt-tM7PZeJOBSEKalAOKK2lYV9oPl6D4ldtD-ghCyBe9E8LrYtGEdV1e0S9YaHon-p8urGXoKUBcwvuHlkDwCWr1gv_1m7EI1o8drpmxGiHtiylLCrssUZd1Z3XdQJrSXeSx0JdIYzrUFekkpjR85kdRNeOPZUNZ_5cWsC8fvRUecp2Xi3NTXdG_jZzkjQMz8rBM4hfAPF1dDzcybjq"/>
-        <div class="flex flex-col">
-          <span class="text-[11px] text-stone-500 font-medium leading-none">Welfare Monitor</span>
-          <h1 class="text-[17px] font-semibold text-stone-900 tracking-tight leading-tight">${title}</h1>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <button onclick="window.app.triggerEmergencyEscalation()" class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold flex items-center gap-1 hover:bg-rose-200 transition-colors" title="Trigger Instant Confidential Crisis Protocol">
-          <span class="material-symbols-outlined text-[15px]">sos</span>
-          <span>Crisis</span>
+    <div class="header-controls">
+      <span class="header-page-title">${title}</span>
+      <div class="view-toggle" role="group" aria-label="Preview size">
+        <button type="button" class="view-toggle-button ${store.viewportMode === 'mobile' ? 'active' : ''}" aria-label="Mobile view" aria-pressed="${store.viewportMode === 'mobile'}" title="Mobile view" onclick="window.app.toggleViewportMode('mobile')">
+          <span class="material-symbols-outlined" aria-hidden="true">smartphone</span>
+          <span class="preview-mode-label">Mobile</span>
         </button>
-        <button class="w-8 h-8 rounded-full bg-teal-800 flex items-center justify-center text-white" onclick="window.app.setRole(store.activeRole === 'personnel' ? 'commander' : (store.activeRole === 'commander' ? 'officer' : 'personnel'))">
-          <span class="material-symbols-outlined text-[18px]">person</span>
+        <button type="button" class="view-toggle-button ${store.viewportMode === 'desktop' ? 'active' : ''}" aria-label="Desktop view" aria-pressed="${store.viewportMode === 'desktop'}" title="Desktop view" onclick="window.app.toggleViewportMode('desktop')">
+          <span class="material-symbols-outlined" aria-hidden="true">desktop_windows</span>
+          <span class="preview-mode-label">Desktop</span>
         </button>
       </div>
+      <label class="role-control">
+        <span>Viewing as</span>
+        <select aria-label="Choose role" onchange="window.app.setRole(this.value)">
+          <option value="personnel" ${store.activeRole === 'personnel' ? 'selected' : ''}>Personnel</option>
+          <option value="commander" ${store.activeRole === 'commander' ? 'selected' : ''}>Commander</option>
+          <option value="officer" ${store.activeRole === 'officer' ? 'selected' : ''}>Wellness officer</option>
+        </select>
+      </label>
+      <button onclick="window.app.triggerEmergencyEscalation()" class="support-button" title="Get confidential support">
+        <span class="material-symbols-outlined" aria-hidden="true">sos</span>
+        <span>Get support</span>
+      </button>
     </div>
   `;
 }
@@ -560,11 +546,11 @@ function renderBottomNav() {
   }
 
   nav.innerHTML = `
-    <div class="mb-2 pointer-events-auto bg-white/90 backdrop-blur-xl rounded-full shadow-[0_4px_20px_rgba(28,35,33,0.08)] px-2 py-1 flex items-center justify-around">
+    <div class="navigation-items">
       ${items.map(it => `
-        <button onclick="window.app.setScreen('${it.id}')" class="flex-1 min-w-[56px] min-h-[50px] flex flex-col items-center justify-center gap-1 transition-colors ${store.activeScreen === it.id ? 'text-[#2E8B8B] font-semibold' : 'text-stone-500'}">
-          <span class="material-symbols-outlined text-[22px]">${it.icon}</span>
-          <span class="text-[11px]">${it.label}</span>
+        <button onclick="window.app.setScreen('${it.id}')" class="navigation-link ${store.activeScreen === it.id ? 'active' : ''}">
+          <span class="material-symbols-outlined" aria-hidden="true">${it.icon}</span>
+          <span>${it.label}</span>
         </button>
       `).join('')}
     </div>
@@ -578,20 +564,16 @@ function getPersonnelTodayHTML(person, risk) {
   const checkIn = person.todayCheckIn || { mood: 3, sleep_quality: 4, workload: 2, completed: false };
 
   return `
-    <div class="flex flex-col w-full gap-5 fade-in">
-      <!-- Friendly Top Bar / Personnel Greeting -->
-      <div class="flex items-center justify-between pt-1">
-        <div class="flex flex-col">
-          <span class="text-xs text-stone-500 tracking-normal">Thursday, Operational Roster</span>
-          <h2 class="text-xl text-stone-900 tracking-tight font-semibold">Good evening, ${person.name.split(' ')[1] || person.name}</h2>
-        </div>
+    <div class="screen screen-personnel-today flex flex-col w-full gap-4 fade-in">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl text-stone-900 font-semibold">Good evening, ${person.name.split(' ')[1] || person.name}</h2>
         <!-- Presence / Mood Indicator -->
         <div class="flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
           <div class="relative flex items-center justify-center">
             <span class="w-2.5 h-2.5 rounded-full ${risk.tier === 'STABLE' ? 'bg-[#3FAE68]' : (risk.tier === 'MODERATE' ? 'bg-[#E8A63D]' : 'bg-[#EF7A34]')}"></span>
             <span class="absolute w-2.5 h-2.5 rounded-full ${risk.tier === 'STABLE' ? 'bg-[#3FAE68]' : 'bg-[#EF7A34]'} animate-ping opacity-75"></span>
           </div>
-          <span class="text-xs text-stone-800 font-medium">${risk.tier === 'STABLE' ? 'Rest & Recover' : 'Caution Level'}</span>
+          <span class="text-xs text-stone-800 font-medium">${risk.tier.charAt(0) + risk.tier.slice(1).toLowerCase()}</span>
         </div>
       </div>
 
@@ -601,11 +583,11 @@ function getPersonnelTodayHTML(person, risk) {
           <div>
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-[#2E8B8B] text-[20px]">spa</span>
-              <h3 class="text-[17px] font-semibold text-stone-900">Daily Pulse</h3>
+              <h3 class="text-[17px] font-semibold text-stone-900">Daily check-in</h3>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Takes 15 seconds · Pause and listen</p>
+            <p class="text-xs text-stone-500 mt-0.5">How are you feeling today?</p>
           </div>
-          <span class="text-[11px] text-[#2E8B8B] bg-[#E4F3F3] px-2 py-0.5 rounded-full font-semibold tracking-wider uppercase">Evening</span>
+          ${checkIn.completed ? '<span class="text-xs text-[#176b5d] font-medium">Checked in</span>' : ''}
         </div>
 
         <!-- Question 1: Mood -->
@@ -678,63 +660,9 @@ function getPersonnelTodayHTML(person, risk) {
 
         <!-- Action Button -->
         <button onclick="window.app.submitCheckIn()" class="w-full h-12 rounded-[14px] bg-[#2E8B8B] text-white font-semibold flex items-center justify-center gap-2 shadow-sm active:scale-[0.99] hover:bg-[#1F6666] transition-all mt-1">
-          <span>${checkIn.completed ? 'Update Today\'s Pulse' : 'Done'}</span>
+          <span>${checkIn.completed ? 'Update check-in' : 'Save check-in'}</span>
           <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
         </button>
-      </div>
-
-      <!-- Completed State Card -->
-      <div class="bg-white rounded-[20px] overflow-hidden shadow-[0_2px_8px_rgba(20,30,28,0.06)] flex flex-col">
-        <div class="relative w-full h-28 overflow-hidden bg-[#E4F3F3]">
-          <img alt="Check-in Completion Sunrise" class="w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida/AEtjO1WhiI-fKSGgSSqm9mg57sBqfHaeiz-l4LnDkQ_fWdWFv6NHZErP4TbSfy-ON3KONujFZFHXxoXf7-uLMeLfzKJh_qNX_WxRTQZGaQ_r6u-BEfe3uotM5A3fa2Dedy_qIppnZRL4oFVGqQrOW1HYf_g4oQmgkpfzJBWgPIbNBhwJJP3xCxYiogAs6zwRQiavI2wJQsAe3p4hHpew-_AtChzVjswn39HctsfIk3RRJQN1BCsH2W_uk9rPUBbI"/>
-          <div class="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
-        </div>
-        <div class="p-5 pt-2 flex flex-col gap-3">
-          <div class="flex items-center gap-2">
-            <span class="w-6 h-6 rounded-full bg-[#E7F6ED] text-[#3FAE68] flex items-center justify-center">
-              <span class="material-symbols-outlined text-[16px]">done_all</span>
-            </span>
-            <h3 class="text-[17px] font-semibold text-stone-900">You checked in today</h3>
-          </div>
-          <p class="text-xs text-stone-500 leading-relaxed">
-            Your reflections help calibrate your baseline picture and protect your unit from within.
-          </p>
-          <div class="flex items-center justify-between pt-2">
-            <div class="flex items-center gap-2">
-              <div class="flex -space-x-1.5 overflow-hidden">
-                <span class="h-6 w-6 rounded-full bg-[#E4F3F3] text-[#2E8B8B] flex items-center justify-center text-[10px] font-bold">M</span>
-                <span class="h-6 w-6 rounded-full bg-[#E4F3F3] text-[#2E8B8B] flex items-center justify-center text-[10px] font-bold">T</span>
-                <span class="h-6 w-6 rounded-full bg-[#E4F3F3] text-[#2E8B8B] flex items-center justify-center text-[10px] font-bold">W</span>
-                <span class="h-6 w-6 rounded-full bg-[#2E8B8B] text-white flex items-center justify-center text-[10px] font-bold shadow-sm">T</span>
-              </div>
-              <span class="text-xs text-stone-500 font-medium">4-day streak</span>
-            </div>
-            <button onclick="window.app.setScreen('my-wellness')" class="text-xs text-[#2E8B8B] font-semibold flex items-center gap-1">
-              <span>View My Profile</span>
-              <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Health Connect Sync Pill -->
-      <div class="bg-[#E4F3F3] rounded-[14px] px-4 py-3 flex items-center justify-between shadow-sm">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#2E8B8B] shrink-0">
-            <span class="material-symbols-outlined text-[20px]">favorite</span>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-[11px] font-bold text-[#2E8B8B] uppercase tracking-wider">Health Connect Synced</span>
-            <span class="text-xs text-[#2E8B8B] font-medium truncate">${person.passiveHealth.sleep_hours}h sleep · ${person.passiveHealth.resting_hr} bpm resting HR</span>
-          </div>
-        </div>
-        <span class="material-symbols-outlined text-[#2E8B8B] text-[20px]">chevron_forward</span>
-      </div>
-
-      <!-- Privacy Reassurance Footnote -->
-      <div class="flex items-center justify-center gap-2 px-4 pb-4 text-center text-stone-500">
-        <span class="material-symbols-outlined text-[16px]">lock</span>
-        <p class="text-xs">Your daily check-in responses are strictly private and never shared with commanders.</p>
       </div>
     </div>
   `;
@@ -759,12 +687,10 @@ function getPersonnelWellnessHTML(person, risk, explanation) {
   else if (risk.tier === 'PRIORITY') { tierColor = '#D64545'; tierBg = '#FAE4E4'; }
 
   return `
-    <div class="flex flex-col w-full gap-5 fade-in">
+    <div class="screen screen-personnel-wellness flex flex-col w-full gap-5 fade-in">
       <!-- Screen Header -->
       <div class="flex flex-col gap-1">
-        <span class="text-[11px] uppercase tracking-widest text-[#006767] font-semibold">Self-Care & Insights</span>
-        <h1 class="text-2xl font-bold text-stone-900 tracking-tight">My Wellness</h1>
-        <p class="text-xs text-stone-500">Your current 14-day welfare profile</p>
+        <p class="text-xs text-stone-500">Your recent wellness picture</p>
       </div>
 
       <!-- Central Visual Hero: Circular Arc Gauge Card -->
@@ -825,8 +751,8 @@ function getPersonnelWellnessHTML(person, risk, explanation) {
 
       <!-- Suggested Micro-Practice Card: Box Breathing -->
       <div class="w-full bg-white rounded-[20px] shadow-sm overflow-hidden flex flex-col">
-        <div class="w-full bg-[#E4F3F3]/50 relative flex items-center justify-center overflow-hidden">
-          <img alt="Box Breathing Wave Graphic" class="w-full h-auto max-h-[160px] object-cover object-center" src="https://lh3.googleusercontent.com/aida/AEtjO1VGPXRxlntZOVYylXxKmVj0pkMw-sYC_Jcfrj2maV-PXL0BdVuTdB5ZPx-8hjcTXLmYSi7V-F0sDuZ2uVrIitok7uEAVEa6EbclnX6fY_xgHh8_03TfTG4dGkgCz3b1saXz0cAGPpP7p83hoXhUY9zgoiYTKwm12p2cTRRS6EdFyBMq0hKKAqu39hLScURKM54qpRFtIT9aehRi6JziH_e1k74kDB6yjzbFGl3cgma_PyShigam2Bz-6w4_"/>
+        <div class="breathing-visual" aria-hidden="true">
+          <div class="breathing-visual-orb"></div>
           <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1">
             <span class="material-symbols-outlined text-[14px] text-[#2E8B8B]">timer</span>
             <span class="text-[11px] text-[#2E8B8B] font-semibold">3 MIN</span>
@@ -834,11 +760,8 @@ function getPersonnelWellnessHTML(person, risk, explanation) {
         </div>
         <div class="p-5 flex flex-col gap-3">
           <div>
-            <span class="text-[11px] uppercase tracking-wider text-[#2E8B8B] font-bold">Suggested Micro-Practice</span>
-            <h2 class="text-[17px] font-semibold text-stone-900">3-Minute Box Breathing</h2>
-            <p class="text-xs text-stone-500 leading-relaxed mt-1">
-              Inhale 4s · Hold 4s · Exhale 4s · Hold 4s to steady heart rate variability and ease sympathetic nervous tension.
-            </p>
+            <h2 class="text-[17px] font-semibold text-stone-900">Box breathing</h2>
+            <p class="text-xs text-stone-500 leading-relaxed mt-1">A short guided reset.</p>
           </div>
 
           <button id="breathing-trigger-btn" onclick="window.app.toggleBreathingSession()" class="w-full h-11 bg-[#2E8B8B] active:bg-[#1F6666] text-white font-semibold text-sm rounded-[14px] flex items-center justify-center gap-2 shadow-sm transition-all">
@@ -868,18 +791,13 @@ function getPersonnelWellnessHTML(person, risk, explanation) {
 
       <!-- Crisis Support Invitation: Soft Rose -->
       <div class="w-full bg-[#FCE9EC] rounded-[20px] shadow-sm overflow-hidden flex flex-col">
-        <div class="w-full flex items-center justify-center overflow-hidden">
-          <img alt="Crisis Support Warm Graphic" class="w-full h-auto max-h-[100px] object-cover object-center" src="https://lh3.googleusercontent.com/aida/AEtjO1Ui0WUWIdA9SkzMTj1oZ7TfxVpQMBuJZXpBmMAV6s_fNOCXQS8leGsWEN17QGjKyN7qRUTPlka8xjb1LQR-Cd-V9CrMrrQOaBPjOYnpACqbW1ktfAlljSSUSKaV73hxwXKJ6_2LTtvaTOYmGx2Ahu6FWmqViDQGUSGEPcXkh_WxCx-KHAECCFxjOaGWm4S8ERYmZUkwbirmITzWhXTs6NCK6Lc7nxAU9RjDMCftdvM4GOxQYFr8SK3fc-Cv"/>
-        </div>
         <div class="p-5 flex flex-col gap-3">
           <div>
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full bg-[#F2A6B4]"></div>
               <h2 class="text-[17px] font-semibold text-stone-900">Need someone to talk to?</h2>
             </div>
-            <p class="text-xs text-stone-600 leading-relaxed mt-1">
-              Confidential peer support and chaplains available 24/7. No disciplinary record is created.
-            </p>
+            <p class="text-xs text-stone-600 leading-relaxed mt-1">Confidential support is available 24/7.</p>
           </div>
           <button onclick="window.app.openCrisisModal()" class="w-full h-11 bg-white hover:bg-slate-50 text-[#894c59] font-semibold text-sm rounded-[14px] flex items-center justify-center gap-2 shadow-sm transition-transform active:scale-[0.98]">
             <span class="material-symbols-outlined text-[18px]">forum</span>
@@ -888,11 +806,6 @@ function getPersonnelWellnessHTML(person, risk, explanation) {
         </div>
       </div>
 
-      <!-- Footer Trust Reassurance -->
-      <div class="flex items-center justify-center gap-2 py-4 px-3 text-center text-stone-500">
-        <span class="material-symbols-outlined text-[16px]">lock</span>
-        <p class="text-xs">Only you can see this page. Commanders only see anonymized unit-level aggregate totals.</p>
-      </div>
     </div>
   `;
 }
@@ -912,18 +825,9 @@ function getCommanderUnitHTML() {
   const pPrio = Math.max(1, Math.round((dist.priority / total) * 100));
 
   return `
-    <div class="flex flex-col w-full gap-4 pb-4 fade-in">
-      <!-- Top Illustrated Banner & Unit Context Header -->
-      <div class="relative w-full rounded-2xl overflow-hidden shadow-sm bg-[#F4F1EA]">
-        <div class="w-full h-[115px] relative overflow-hidden">
-          <img alt="Commander Banner Landscape" class="w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida/AEtjO1UardHHvCRWGLTy4NIJQSm5lQdgz8PAa-lywTgnu0T6y4JXe8gX_53F8H3oRnLuFcQQcll4aLSzY9jDeVq5vvMd8ADsegassHNxmMEX9r3G-UR54D0QWM2qmk3qM7ZU1K4yCY4CwICmkrdfs30mYEuxDa1vkHefvErLgzm3Jq6FjlCVhYveR670bi4rxqLNWewJsIE2OAf_buVYVaDX4EZ9sec75hUF5XyVJRKbva19o4SX1NiSJmLawPP5"/>
-          <div class="absolute inset-0 bg-gradient-to-t from-[#F4F1EA] via-[#F4F1EA]/40 to-transparent"></div>
-          <div class="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 backdrop-blur-md shadow-sm text-xs text-stone-600">
-            <span class="w-2 h-2 rounded-full bg-[#3FAE68] animate-pulse"></span>
-            <span class="text-[10px] font-bold uppercase tracking-wider">Live Aggregate</span>
-          </div>
-        </div>
-        <div class="px-4 pb-4 pt-1 flex flex-col">
+    <div class="screen screen-commander-overview flex flex-col w-full gap-4 pb-4 fade-in">
+      <div class="commander-heading">
+        <div class="px-4 py-4 flex flex-col">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-[#2E8B8B] text-[22px]">shield</span>
             <h2 class="text-xl font-bold text-stone-900 tracking-tight">${unit.name} · ${unit.totalPersonnel} personnel</h2>
@@ -994,7 +898,7 @@ function getCommanderUnitHTML() {
 
         <div class="flex items-center gap-2 pt-1 text-stone-500 text-[11px]">
           <span class="material-symbols-outlined text-[16px] text-[#2E8B8B]">verified_user</span>
-          <span>Strict anonymization active: individual scores permanently hidden from commanders.</span>
+          <span>Individual scores are hidden.</span>
         </div>
       </div>
 
@@ -1057,10 +961,6 @@ function getCommanderUnitHTML() {
       </div>
 
       <!-- Trust Notice -->
-      <div class="flex items-center justify-center gap-2 py-2 px-3 text-center text-stone-500">
-        <span class="material-symbols-outlined text-[16px]">lock</span>
-        <p class="text-xs">Individual-level health and check-in data is strictly hidden by server-side schema boundaries.</p>
-      </div>
     </div>
   `;
 }
@@ -1074,7 +974,7 @@ function getCommanderDataEntryHTML() {
   const currentPerson = getCurrentPersonnel();
 
   return `
-    <div class="flex flex-col w-full gap-4 pb-6 bg-[#F4F1EA] -mx-4 px-4 pt-1 rounded-2xl fade-in">
+    <div class="screen screen-commander-entry flex flex-col w-full gap-4 pb-6 bg-[#F4F1EA] -mx-4 px-4 pt-1 rounded-2xl fade-in">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-lg font-bold text-stone-900 leading-tight">Duty & Shift Rotation Entry</h2>
@@ -1092,8 +992,8 @@ function getCommanderDataEntryHTML() {
       <!-- Roster Manifest (No Wellness Tiers Visible) -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between text-[11px] text-stone-500 uppercase tracking-wider font-semibold">
-          <span>Roster Manifest (No Wellness Tiers Visible)</span>
-          <span>Role-Gated</span>
+          <span>Personnel</span>
+          <span>${store.personnelList.length}</span>
         </div>
 
         ${store.personnelList.map(p => `
@@ -1179,7 +1079,7 @@ function getOfficerOverviewHTML() {
   const activeAlerts = store.crisisAlerts;
 
   return `
-    <div class="flex flex-col w-full gap-4 pb-6 fade-in">
+    <div class="screen screen-officer-triage flex flex-col w-full gap-4 pb-6 fade-in">
       <!-- Crisis Alert Top Banner (Crimson #B83232) -->
       ${activeAlerts.length > 0 ? `
         <div class="w-full rounded-2xl bg-[#B83232] text-white p-4 shadow-lg flex items-start justify-between crisis-top-banner">
@@ -1201,8 +1101,7 @@ function getOfficerOverviewHTML() {
       <!-- Triage Header -->
       <div class="flex items-center justify-between">
         <div>
-          <span class="text-[11px] uppercase tracking-wider text-teal-700 font-semibold">Clinical Oversight</span>
-          <h1 class="text-xl font-bold text-stone-900">Wellness Triage Queue</h1>
+          <h1 class="text-xl font-bold text-stone-900">Needs review</h1>
         </div>
         <button onclick="window.app.setScreen('wo-roster')" class="text-xs font-semibold text-[#2E8B8B] flex items-center gap-1">
           <span>View All (184)</span>
@@ -1211,7 +1110,7 @@ function getOfficerOverviewHTML() {
       </div>
 
       <!-- Priority Action Queue -->
-      <div class="flex flex-col gap-3">
+      <div class="officer-queue flex flex-col gap-3">
         ${store.personnelList.map(p => {
           const r = p.riskResult || riskEngine.evaluate(p);
           let badgeClass = 'bg-[#E7F6ED] text-[#3FAE68]';
@@ -1242,7 +1141,8 @@ function getOfficerOverviewHTML() {
               </div>
 
               <div class="p-2.5 bg-slate-50 rounded-xl text-xs text-stone-600 leading-snug">
-                <strong>Primary Factor:</strong> ${r.ranked_factors[0]?.factor_name || 'Operational Shift Rotation'} (${r.ranked_factors[0]?.percentage || 35}% weight)
+                <strong>${r.ranked_factors[0]?.factor_name || 'Operational Shift Rotation'}</strong>
+                <span>${r.ranked_factors[0]?.percentage || 35}%</span>
               </div>
 
               <div class="flex items-center justify-between text-[11px] text-stone-400 pt-1 border-t border-slate-100">
@@ -1267,13 +1167,13 @@ function bindOfficerOverviewEvents() {}
 // -------------------------------------------------------------
 function getOfficerRosterHTML() {
   return `
-    <div class="flex flex-col w-full gap-4 pb-6 fade-in">
+    <div class="screen screen-officer-roster flex flex-col w-full gap-4 pb-6 fade-in">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-xl font-bold text-stone-900">Unit Bravo Clinical Roster</h2>
-          <p class="text-xs text-stone-500">Unrestricted officer medical in-confidence roster</p>
+          <p class="text-xs text-stone-500">${store.personnelList.length} personnel</p>
         </div>
-        <span class="px-2 py-1 rounded-full bg-red-100 text-red-700 text-[10px] font-bold tracking-wider">SEC-4B</span>
+        <span class="material-symbols-outlined text-[#176b5d]" aria-hidden="true">shield</span>
       </div>
 
       <div class="flex flex-col gap-2">
@@ -1313,7 +1213,7 @@ function getOfficerDetailHTML(person, risk, explanation) {
   const notes = store.clinicalNotes;
 
   return `
-    <div class="flex flex-col w-full gap-4 pb-8 fade-in bg-[#FAFBFB] -mx-4 px-4 pt-1 rounded-2xl">
+    <div class="screen screen-officer-detail flex flex-col w-full gap-4 pb-8 fade-in bg-[#FAFBFB] -mx-4 px-4 pt-1 rounded-2xl">
       <!-- Sub-header Navigation & Clearance Status -->
       <section class="w-full bg-white rounded-xl p-3 shadow-sm flex items-center justify-between border border-slate-100">
         <div class="flex items-center gap-2">
@@ -1498,7 +1398,7 @@ function bindOfficerDetailEvents() {}
 // -------------------------------------------------------------
 function getProfileHTML(person) {
   return `
-    <div class="flex flex-col w-full gap-4 pb-6 fade-in">
+    <div class="screen screen-profile flex flex-col w-full gap-4 pb-6 fade-in">
       <div class="w-full bg-white rounded-[20px] p-5 shadow-sm flex flex-col items-center gap-3">
         <div class="w-16 h-16 rounded-full bg-teal-800 text-white flex items-center justify-center font-bold text-xl shadow-md">
           ${person.shortName}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
-  <title>Personnel Welfare & Stress Monitoring System</title>
+  <title>Welfare Monitor</title>
   
   <!-- Typography & Icons from Design System -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -59,23 +59,23 @@
 
   <link rel="stylesheet" href="app.css"/>
 </head>
-<body class="bg-slate-200 flex flex-col items-center justify-start min-h-screen">
+<body>
 
   <!-- Mobile/Tablet Frame Viewport -->
-  <div id="app-viewport" class="app-viewport flex flex-col relative">
+  <div id="app-viewport" class="app-viewport desktop-preview">
     
     <!-- Pinned Top Shell Header -->
-    <header id="app-header" class="fixed top-0 w-full z-50 bg-[#FBF3E9]/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(28,35,33,0.04)]"></header>
+    <header id="app-header" class="app-header"></header>
 
     <!-- Main Dynamic Screen Content Area -->
-    <main class="flex flex-col relative w-full px-4 pt-24 pb-28 flex-1">
-      <div id="screen-content" class="w-full">
+    <main class="app-main">
+      <div id="screen-content">
         <!-- Rendered by app.js -->
       </div>
     </main>
 
     <!-- Pinned Bottom Role-Based Shell Navigation -->
-    <nav id="app-bottom-nav" class="fixed bottom-0 w-full z-50 pb-safe px-4 pointer-events-none"></nav>
+    <nav id="app-bottom-nav" class="app-navigation"></nav>
 
   </div>
 
